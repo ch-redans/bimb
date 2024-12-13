@@ -1,0 +1,51 @@
+Health Check Results for {{ currDateApp }}
+=======================================
+{% for hcpattern in all_matched_output.results %}
+{% if hcpattern.item.keyword == 'dd/mm/yyyy' %}
+  {% if hcpattern.ansible_facts.matchVal == currDateApp %}
+[SUCCESS] - {{ hcpattern.item.desc }} is {{ hcpattern.ansible_facts.matchVal }}.
+  {% else %}
+[FAILED] - {{ hcpattern.item.desc }} is {{ hcpattern.ansible_facts.matchVal }}, not {{ currDateApp }} as expected.
+  {% endif %}
+{% elif hcpattern.item.keyword == 'yyyy-MM-dd' %}
+  {% set newVal = hcpattern.ansible_facts.matchVal | regex_replace('\\(\'(.*)\', \'(.*)\'\\)', '\\1,\\2') | split(',') %}
+  {% if newVal[0] == currDateHB and newVal[1] == currDateHB %}
+[SUCCESS] - {{ hcpattern.item.desc }} Primary ({{ newVal[0] }}) and Secondary ({{ newVal[1] }}) heartbeat timestamps are current.
+  {% else %}
+[FAILED] - {{ hcpattern.item.desc }} Primary ({{ newVal[0] }}) and/or Secondary ({{ newVal[1] }}) heartbeat timestamps is/are not current.
+  {% endif %}
+{% elif hcpattern.item.keyword == 'sync_counter' %}
+  {% set newVal = hcpattern.ansible_facts.matchVal | regex_replace('\\(\'(.*)\', \'(.*)\'\\)', '\\1,\\2') | split(',') %}
+  {% if newVal[0] == newVal[1] %}
+[SUCCESS] - {{ hcpattern.item.desc }} Primary ({{ newVal[0] }}) and Secondary ({{ newVal[1] }}) are in sync.
+  {% else %}
+[FAILED] - {{ hcpattern.item.desc }} Primary ({{ newVal[0] }}) and Secondary ({{ newVal[1] }}) are NOT in sync.
+  {% endif %}
+{% elif hcpattern.item.keyword == 'dsk_pct' %}
+  {% if hcpattern.ansible_facts.matchVal | int < 50 %}
+[SUCCESS] - Disk space for {{ hcpattern.item.desc }} is at {{ hcpattern.ansible_facts.matchVal }} percent.
+  {% else %}
+[FAILED] - Disk space for {{ hcpattern.item.desc }} has reached or exceeded 50 percent threshold at {{ hcpattern.ansible_facts.matchVal }} percent.
+  {% endif %}
+{% elif hcpattern.item.keyword == 'mem_pct' %}
+  {% if hcpattern.ansible_facts.matchVal | int < 50 %}
+[SUCCESS] - Memory usage for {{ hcpattern.item.desc }} is at {{ hcpattern.ansible_facts.matchVal }} percent.
+  {% else %}
+[FAILED] - Memory usage for {{ hcpattern.item.desc }} has reached or exceeded 50 percent threshold at {{ hcpattern.ansible_facts.matchVal }} percent.
+  {% endif %}
+{% elif '|' in hcpattern.item.keyword %}
+  {% set newKeyword = hcpattern.item.keyword | regex_replace('(.*)\|(.*)', '\\1|\\2') | split('|') %}
+  {% if hcpattern.ansible_facts.matchVal | regex_search('\\b' + newKeyword[0] + '\\b|\\b' + newKeyword[1] + '\\b') %}
+[SUCCESS] - {{ hcpattern.item.desc }} is {{ hcpattern.ansible_facts.matchVal }}.
+  {% else %}
+[FAILED] - {{ hcpattern.item.desc }} is {{ hcpattern.ansible_facts.matchVal }}, not {{ hcpattern.item.keyword }} as expected.
+  {% endif %}
+{% else %}
+  {% if hcpattern.ansible_facts.matchVal | regex_search('\\b' + hcpattern.item.keyword + '\\b') %}
+[SUCCESS] - {{ hcpattern.item.desc }} is {{ hcpattern.ansible_facts.matchVal }}.
+  {% else %}
+[FAILED] - {{ hcpattern.item.desc }} is {{ hcpattern.ansible_facts.matchVal }}, not {{ hcpattern.item.keyword }} as expected.
+  {% endif %}
+{% endif %}
+{% endfor %}
+

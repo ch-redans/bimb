@@ -1,0 +1,75 @@
+---
+- block:
+    - name: "Get file sizes on Prod Server"
+      ansible.builtin.win_find:
+        paths: "{{ dir }}"
+        recurse: yes
+        file_type: file
+      register: file_list_primary
+      delegate_to: prod_server
+
+    - set_fact:
+        file_data: "{{ file_list_primary.files }}"
+        
+    - name: Format data as CSV
+      set_fact:
+        csv_data: "{{ file_data | json_query('[].{filename: path, size: size}') }}"
+        
+    - name: Display CSV data
+      debug:
+        var: csv_data
+
+
+#    - debug:
+#        var: csv_data
+
+    - name: Save CSV data to a file
+      copy:
+        content: |
+          {% for item in csv_data %}
+          {{ item.filename }},{{ item.size }}
+          {% endfor %}
+        dest: /var/lib/pgsql/temp/output.csv
+      become_user: postgres
+      become: yes       
+      delegate_to: localhost
+
+    - name: "Create table"
+      community.postgresql.postgresql_table:
+        name: bimb_compare_file_size_test
+        columns:
+        - file_name varchar
+        - file_size integer
+        owner: bimb
+        db: bimb
+        login_host: 192.168.5.12
+        login_user: bimb
+        login_password: bimb
+      register: tblCreate
+
+    - debug:
+        var: tblCreate
+
+    - name: "Load data from file into table"
+      community.postgresql.postgresql_copy:
+        copy_from: /var/lib/pgsql/temp/output.csv
+        dst: bimb_compare_file_size_test
+        options:
+          delimiter: ','
+          null: 'N'
+          format: csv
+        db: bimb
+        login_host: 192.168.5.12
+        login_user: bimb
+        login_password: bimb
+      become_user: postgres
+      become: yes
+      register: loadStat
+
+    - debug:
+        var: loadStat
+
+
+
+  tags: 
+    - compareFileSizes

@@ -1,0 +1,31 @@
+
+Files in directory /home/ansible that exist in both Prod & DR App servers, with same checksum:
+
+{
+  "File in Prod App server": "/home/ansible/angela-password - 2d6280b970da6c945324c55269251f16f8a2fd26",
+  "File in DR App server": "/home/ansible/angela-password - 2d6280b970da6c945324c55269251f16f8a2fd26"
+},{
+  "File in Prod App server": "/home/ansible/compare/abc - da39a3ee5e6b4b0d3255bfef95601890afd80709",
+  "File in DR App server": "/home/ansible/compare/abc - da39a3ee5e6b4b0d3255bfef95601890afd80709"
+},{
+  "File in Prod App server": "/home/ansible/john-password - 393151cc84789e857c351fb0a970af1f6f9282ed",
+  "File in DR App server": "/home/ansible/john-password - 393151cc84789e857c351fb0a970af1f6f9282ed"
+}
+########################################################################################################
+
+
+Files in directory /home/ansible that exist in both Prod & DR App servers, with different checksum:
+
+{
+  "File in Prod App server": "/home/ansible/compare/xyz - da39a3ee5e6b4b0d3255bfef95601890afd80709",
+  "File in DR App server": "/home/ansible/compare/xyz - 20d3c155331817a6b10743b6ab5f613d7fdabc6b"
+}
+########################################################################################################
+
+Extra file(s) in both DR and Prod App servers:
+
+"{'Extra files in DR App Server': '/home/ansible/.ssh/authorized_keys_bak'}"
+"{'Extra files in Prod App Server': '/home/ansible/.ansible/tmp/ansible-tmp-1700044059.4663258-62-105724877761067/AnsiballZ_find.py'}"
+          
+########################################################################################################
+

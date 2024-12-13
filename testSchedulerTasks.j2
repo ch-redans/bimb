@@ -1,0 +1,7 @@
+{% for sts in scheduled_tasks.State %}
+  {% if sts is defined and sts == '1' %}
+    [SUCCESS] {{ scheduled_tasks.TaskName }} is disabled.
+  {% else %}
+    [FAIL] {{ scheduled_tasks.TaskName }} is not disabled!
+  {% endif %}
+{% endfor %}

@@ -1,0 +1,47 @@
+---
+- hosts: linux
+  gather_facts: false
+  
+  tasks:
+    - name: Check if file exists
+      stat:
+        path: /home/ansible/rpp-dr.xml
+      register: fileA_stat
+
+    - name: Check if file exists
+      stat:
+        path: /home/ansible/rpp-p2-dr.xml
+      register: fileB_stat
+
+    - name: Rename fileA if it exists
+      command: |
+        cp /home/ansible/rpp-dr1.xml /home/ansible/rpp.xml
+      ignore_errors: yes
+      when: fileA_stat.stat.exists
+      register: cp_resultA
+
+    - name: Rename fileB if it exists
+      command: |
+        cp /home/ansible/rpp-p2-dr.xml /home/ansible/rpp-p2.xml
+      ignore_errors: yes
+      when: fileB_stat.stat.exists
+      register: cp_resultB
+
+    - debug:
+        var: cp_resultB
+ 
+    - assert:
+        that:
+          - not cp_resultA.failed
+        fail_msg: "fileA copy not OK"
+        success_msg: "fileA copy OK"
+      ignore_errors: yes  
+       
+    - assert:
+        that:
+          - not cp_resultB.failed
+        fail_msg: "fileB copy not OK"
+        success_msg: "fileB copy OK"
+      ignore_errors: yes  
+
+

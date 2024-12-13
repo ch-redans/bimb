@@ -1,0 +1,51 @@
+---
+- name: Compare Directories
+  hosts: localhost
+  gather_facts: no
+  vars: 
+    - primary_server: 192.168.5.12
+    - secondary_server: 192.168.5.22
+
+  tasks:
+  - block:
+    - block:
+      - name: Get directory listings on primary_server
+        ansible.builtin.find:
+          paths: /home/ansible/compare
+          recurse: yes
+          file_type: any
+          get_checksum: yes
+        register: dir_list_primary
+        
+      - set_fact: 
+          fileCountPrimary: "{{ dir_list_primary.files | length }}"
+      
+      - debug:
+          var: fileCountPrimary           
+      delegate_to: primary_server
+
+    - block:
+      - name: Get directory listings on secondary_server
+        ansible.builtin.find:
+          paths: /home/ansible/compare
+          recurse: yes
+          file_type: any
+          get_checksum: yes
+        register: dir_list_secondary
+        
+      - set_fact: 
+          fileCountSecondary: "{{ dir_list_secondary.files | length }}"      
+      delegate_to: secondary_server
+
+    - debug:
+        var: fileCountPrimary
+
+    - debug:
+        var: fileCountSecondary       
+
+    - name: Compare directory listings
+      assert:
+        that:
+          - fileCountPrimary == fileCountSecondary
+        fail_msg: "File counts are not the same"
+        success_msg: "File counts are same"  

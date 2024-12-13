@@ -1,0 +1,44 @@
+---
+- block:
+    - debug:
+        msg: "Remediate for freevxfs kernel module"
+
+    - name: Check if freevxfs module is available
+      shell: |
+        if lsmod | grep -q freevxfs; then
+          echo "available";
+        elif modinfo freevxfs &>/dev/null; then
+          echo "available";
+        else
+          echo "not_available";
+        fi
+      register: freevxfs_status
+      changed_when: false
+
+    - name: Debug freevxfs availability
+      debug:
+        msg: "freevxfs module status: {{ freevxfs_status.stdout }}"
+
+    - name: Create /etc/modprobe.d/freevxfs.conf to disable freevxfs
+      ansible.builtin.copy:
+        dest: "/etc/modprobe.d/freevxfs.conf"
+        content: |
+          install freevxfs /bin/false
+          blacklist freevxfs
+      when: freevxfs_status.stdout == "available"
+
+    - name: Remove freevxfs from the kernel
+      shell: |
+        modprobe -r freevxfs 2>/dev/null || true
+        rmmod freevxfs 2>/dev/null || true
+      when: freevxfs_status.stdout == "available"
+      ignore_errors: yes
+
+    - name: Skip remediation if freevxfs is not available
+      debug:
+        msg: "freevxfs module is not available, no remediation necessary."
+      when: freevxfs_status.stdout == "not_available"
+
+  become: yes
+  tags: 
+    - remediate_freevxfs_1_1_1_2

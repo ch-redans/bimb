@@ -1,0 +1,24 @@
+---
+- hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Check if script is running and write to temp file
+      shell: |
+        ps_out=$(ps -ef | grep testScript.sh | grep -v 'grep' | awk -F'/' '{print $NF}')
+        if [ "$ps_out" == "testScript.sh" ]; then
+          echo "$ps_out" > /tmp/result.txt
+          echo "$ps_out"
+        elif [ -z "$ps_out" ]; then
+          echo "done" > /tmp/result.txt
+        fi
+        cat /tmp/result.txt
+      register: script_process2
+      retries: 60
+      delay: 2
+      until: script_process2.stdout == 'done'
+      ignore_errors: yes
+    
+        
+    - debug:
+        var: script_process2

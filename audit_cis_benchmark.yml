@@ -1,0 +1,12 @@
+---
+- hosts: all
+  gather_facts: false
+ 
+  tasks:
+    - include_role:
+        name: audit_cis_benchmark
+      tags:
+        - insert_compliance_records_into_db
+        - remediate_cramfs_1_1_1_1
+        - remediate_freevxfs_1_1_1_2
+        - remediate_hfs_1_1_1_3

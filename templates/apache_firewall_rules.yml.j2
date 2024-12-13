@@ -1,0 +1,12 @@
+{#
+- port: 80
+  protocol: TCP
+  zone: internal
+#}
+
+{% for server in groups['local_servers'] %}
+- zone: internal
+  source: "{{ hostvars[server]['ansible_facts']['default_ipv4']['address'] }}"
+  protocol: TCP
+  port: 80
+{% endfor %}

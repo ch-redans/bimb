@@ -1,0 +1,14 @@
+---
+
+- hosts: win
+  gather_facts: no
+
+  tasks:
+  - community.windows.win_scheduled_task:
+      name: RunUpdateNotificationMgr
+      enabled: yes
+
+  - community.windows.win_scheduled_task:
+      name: Recovery-Check
+      enabled: yes
+

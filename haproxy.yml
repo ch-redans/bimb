@@ -1,0 +1,12 @@
+---
+
+- hosts: all
+  gather_facts: false
+
+  tasks:
+    - include_role:
+        name: haproxy
+      tags:   
+        - compareFileSizes
+        - test
+        - compareFileNamesnChecksum_ebankerpro_app_template_files

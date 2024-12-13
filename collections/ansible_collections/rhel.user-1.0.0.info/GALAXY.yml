@@ -1,0 +1,8 @@
+download_url: https://node2.aits.my/api/galaxy/v3/plugin/ansible/content/published/collections/artifacts/rhel-user-1.0.0.tar.gz
+format_version: 1.0.0
+name: user
+namespace: rhel
+server: https://node2.aits.my/api/galaxy/content/published/
+signatures: []
+version: 1.0.0
+version_url: /api/galaxy/content/published/v3/plugin/ansible/content/published/collections/index/rhel/user/versions/1.0.0/

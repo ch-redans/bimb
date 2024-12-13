@@ -1,0 +1,10 @@
+---
+# tasks file for myrole
+
+- name: test echo
+  ansible.builtin.shell:
+    cmd: echo "ABC"
+  register: result
+
+- debug: 
+    var: result

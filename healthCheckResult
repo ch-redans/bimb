@@ -1,0 +1,30 @@
+Health Check Results for 03/09/2023
+=======================================
+[SUCCESS] - Applications Value Date is 03/09/2023.
+[SUCCESS] - Glassfish BHI Service Status is RUNNING.
+[SUCCESS] - OpenESB Server Service Status is RUNNING.
+[SUCCESS] - Message Queue Broker Service Status is RUNNING.
+[SUCCESS] - GPICLIENT Replication Status is IN-PROGRESS.
+[SUCCESS] - GPICLIENT_ARCHIVE Replication Status is RUNNING.
+[SUCCESS] - GPICLIENT Heartbeat Timestamp Primary (2023-09-03) and Secondary (2023-09-03) heartbeat timestamps are current.
+[SUCCESS] - GPICLIENT_ARCHIVE Heartbeat Timestamp Primary (2023-09-03) and Secondary (2023-09-03) heartbeat timestamps are current.
+[SUCCESS] - BPEL AuditComposite Service Status is Started.
+[SUCCESS] - BPEL BI_CaseComposite Service Status is Started.
+[SUCCESS] - BPEL BI_CBSComposite Service Status is Started.
+[SUCCESS] - BPEL BI_CDBComposite Service Status is Started.
+[SUCCESS] - BPEL BI_OPSComposite Service Status is Started.
+[SUCCESS] - BPEL BI_OtherComposite Service Status is Started.
+[SUCCESS] - BPEL BI_QuantumComposite Service Status is Started.
+[SUCCESS] - BPEL IFTSComposite Service Status is Started.
+[SUCCESS] - BPEL SAAComposite Service Status is Started.
+[SUCCESS] - BPEL ScreenComposite Service Status is Started.
+[SUCCESS] - BPEL STATComposite Service Status is Started.
+[SUCCESS] - GPI Web Application Status is ENABLED.
+[SUCCESS] - Port Status IPv4 is LISTENING.
+[SUCCESS] - Port Status IPv6 is LISTENING.
+[SUCCESS] - Disk space for Local Disk C is at 14 percent.
+[SUCCESS] - Disk space for Local Disk D is at 43 percent.
+[SUCCESS] - Memory usage for GlassFish GPI Memory is at 5 percent.
+[SUCCESS] - Memory usage for OpenESB Server Memory is at 7 percent.
+[SUCCESS] - Memory usage for Message Queue Broker Memory is at 0 percent.
+

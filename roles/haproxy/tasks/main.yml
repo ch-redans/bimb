@@ -1,0 +1,35 @@
+---
+
+- include_tasks: compareFileSizes.yml
+  vars: 
+    dir: "C:\\Users\\tan_c\\Desktop\\Ingram"
+  when: inventory_hostname == ans_local
+  tags:
+    - compareFileSizes
+
+# - include_tasks: test.yml
+#   when: inventory_hostname == 'localhost' or '127.0.0.1' in ansible_default_ipv4.address|default([])
+#   tags:
+#     - test
+
+- include_tasks: test.yml
+  when: inventory_hostname == postgres_host_fact
+  tags:
+    - test
+
+- include_tasks: compareFileProdnDR_useFindModulewChecksum.yml
+  vars:
+    actDesc: Compare template files in /apps/cib/template/bc between Prod & DR App servers
+    serverType: App
+    delegateToProdServer: 192.168.5.23
+    delegateToDRServer: 192.168.5.12
+    pattern: '*'
+    dir: /home/ansible
+    csvTempfileProd: /var/lib/pgsql/temp/eBankerPro_template_dir_Prod_{{currDate}}.csv
+    csvTempfileDR: /var/lib/pgsql/temp/eBankerPro_template_dir_DR_{{currDate}}.csv
+    Prodtbl2bCreated: prod_ebankerpro_template_filename
+    DRtbl2bCreated: dr_ebankerpro_template_filename
+    reportingTempFileLocal: /var/lib/awx/projects/bimb/temp/eBankerPro_app_template_files_{{currDate}}.txt
+  when: inventory_hostname == 'localhost' or '127.0.0.1' in ansible_default_ipv4.address|default([])
+  tags:
+    - compareFileNamesnChecksum_ebankerpro_app_template_files

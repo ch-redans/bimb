@@ -1,0 +1,32 @@
+{
+ "collection_info": {
+  "namespace": "student",
+  "name": "testcollection2",
+  "version": "1.2.0",
+  "authors": [
+   "your name <example@domain.com>"
+  ],
+  "readme": "README.md",
+  "tags": [],
+  "description": "your collection description",
+  "license": [
+   "GPL-2.0-or-later"
+  ],
+  "license_file": null,
+  "dependencies": {
+   "ansible.posix": ">=1.0.0"
+  },
+  "repository": "http://example.com/repository",
+  "documentation": "http://docs.example.com",
+  "homepage": "http://example.com",
+  "issues": "http://example.com/issue/tracker"
+ },
+ "file_manifest_file": {
+  "name": "FILES.json",
+  "ftype": "file",
+  "chksum_type": "sha256",
+  "chksum_sha256": "f1708f65120a40f906268b9f5a228701804c9a17241637ec622f0e7a42d4af6e",
+  "format": 1
+ },
+ "format": 1
+}

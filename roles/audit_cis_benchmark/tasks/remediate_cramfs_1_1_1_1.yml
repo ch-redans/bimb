@@ -1,0 +1,44 @@
+---
+- block:
+    - debug:
+        msg: "Remediate for cramfs kernel module"
+
+    - name: Check if cramfs module is available
+      shell: |
+        if lsmod | grep -q cramfs; then
+          echo "available";
+        elif modinfo cramfs &>/dev/null; then
+          echo "available";
+        else
+          echo "not_available";
+        fi
+      register: cramfs_status
+      changed_when: false
+
+    - name: Debug cramfs availability
+      debug:
+        msg: "Cramfs module status: {{ cramfs_status.stdout }}"
+
+    - name: Create /etc/modprobe.d/cramfs.conf to disable cramfs
+      ansible.builtin.copy:
+        dest: "/etc/modprobe.d/cramfs.conf"
+        content: |
+          install cramfs /bin/false
+          blacklist cramfs
+      when: cramfs_status.stdout == "available"
+
+    - name: Remove cramfs from the kernel
+      shell: |
+        modprobe -r cramfs 2>/dev/null || true
+        rmmod cramfs 2>/dev/null || true
+      when: cramfs_status.stdout == "available"
+      ignore_errors: yes
+
+    - name: Skip remediation if cramfs is not available
+      debug:
+        msg: "Cramfs module is not available, no remediation necessary."
+      when: cramfs_status.stdout == "not_available"
+
+  become: yes
+  tags: 
+    - remediate_cramfs_1_1_1_1

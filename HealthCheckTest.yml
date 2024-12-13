@@ -1,0 +1,38 @@
+---
+
+- hosts: localhost
+  gather_facts: no
+  
+  tasks:
+    - name: "Load search strings into buffer"
+      command: cat search_strings.json
+      register: search_strings_data
+      delegate_to: localhost
+  
+    - set_fact:
+        search_strings_json: "{{ search_strings_data.stdout }}"
+
+    - set_fact:
+        appSearchStr: "{{ search_strings_json | json_query('searchStringsGPI[*]') }}"
+
+    - name: "Capture log content "
+      shell: cat HealthCheckLog.log
+      register: hc_log_out
+      failed_when: hc_log_out.stdout == ""
+  
+    - name: "Capture required values from log"
+      set_fact:
+        matchVal: "{{ hc_log_out.stdout | regex_findall(item.pattern, multiline=True) | join('') }}"
+      loop: "{{ appSearchStr }}"
+      register: all_matched_output
+  
+    - name: "Write health check results to file"
+      template:
+        src: healthCheckTemplate.j2
+        dest: healthCheckResult
+        lstrip_blocks: yes
+      vars:
+        currDateApp: "{{ lookup('pipe', 'date +%d/%m/%Y') }}"
+        currDateHB: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
+      with_items: "{{ all_matched_output }}"
+      delegate_to: localhost

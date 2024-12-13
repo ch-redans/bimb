@@ -1,0 +1,10 @@
+---
+# tasks file for newuser
+#
+- name: echo string
+  ansible.builtin.shell:
+    cmd: echo "ABC"
+  register: result
+
+- debug:
+    var: result

@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  gather_facts: no
+  
+  tasks:
+        - name: "Create table"
+          community.postgresql.postgresql_table:
+            name: bimb_compare_file_size
+            columns:
+            - file_name varchar
+            - file_size integer
+            owner: bimb
+            db: bimb
+            login_host: 192.168.5.12
+            login_user: bimb
+            login_password: bimb
+          register: tblCreate
+
+        - debug:
+            var: tblCreate

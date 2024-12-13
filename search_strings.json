@@ -1,0 +1,32 @@
+{
+  "searchStringsGPI":
+    [
+      { "desc": "Applications Value Date", "pattern": "^Applications Value Date : (\\d+/\\d+/\\d+)\\s*$", "keyword": "dd/mm/yyyy" },          
+      { "desc": "Glassfish BHI Service Status", "pattern": "^\\s+Service Name : Glassfish GPI\\s+Status : (\\w+)\\s*$", "keyword": "RUNNING" },
+      { "desc": "OpenESB Server Service Status", "pattern": "^\\s+Service Name : OpenESB Server\\s+Status : (\\w+)\\s*$", "keyword": "RUNNING" },
+      { "desc": "Message Queue Broker Service Status", "pattern": "^\\s+Service Name : Message Queue Broker\\s+Status : (\\w+)\\s*$", "keyword": "RUNNING" },
+      { "desc": "GPICLIENT Replication Status", "pattern": "^\\s+Database Name : GPICLIENT\\s+Status : ([-A-Z]+)\\s*$", "keyword": "RUNNING|IN-PROGRESS" },           
+      { "desc": "GPICLIENT_ARCHIVE Replication Status", "pattern": "^\\s+Database Name : GPICLIENT_ARCHIVE\\s+Status : ([-A-Z]+)\\s*$", "keyword": "RUNNING|IN-PROGRESS" },
+      { "desc": "GPICLIENT Heartbeat Timestamp", "pattern": "^\\s+Database Name : GPICLIENT\\s+Primary\\s+: (\\d+-\\d+-\\d+)\\s\\d+:\\d+:\\d+\\s*[\r\n].*Secondary\\s+: (\\d+-\\d+-\\d+)\\s.*", "keyword": "yyyy-MM-dd" },                  
+      { "desc": "GPICLIENT_ARCHIVE Heartbeat Timestamp", "pattern": "^\\s+Database Name : GPICLIENT_ARCHIVE\\s+Primary\\s+: (\\d+-\\d+-\\d+)\\s\\d+:\\d+:\\d+\\s*[\r\n].*Secondary\\s+: (\\d+-\\d+-\\d+)\\s.*", "keyword": "yyyy-MM-dd" },           
+      { "desc": "BPEL AuditComposite Service Status", "pattern": "^\\s+BPEL Service Name : AuditComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },      
+      { "desc": "BPEL BI_CaseComposite Service Status", "pattern": "^\\s+BPEL Service Name : BI_CaseComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },                  
+      { "desc": "BPEL BI_CBSComposite Service Status", "pattern": "^\\s+BPEL Service Name : BI_CBSComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },
+      { "desc": "BPEL BI_CDBComposite Service Status", "pattern": "^\\s+BPEL Service Name : BI_CDBComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },
+      { "desc": "BPEL BI_OPSComposite Service Status", "pattern": "^\\s+BPEL Service Name : BI_OPSComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },
+      { "desc": "BPEL BI_OtherComposite Service Status", "pattern": "^\\s+BPEL Service Name : BI_OtherComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },
+      { "desc": "BPEL BI_QuantumComposite Service Status", "pattern": "^\\s+BPEL Service Name : BI_QuantumComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },
+      { "desc": "BPEL IFTSComposite Service Status", "pattern": "^\\s+BPEL Service Name : IFTSComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },
+      { "desc": "BPEL SAAComposite Service Status", "pattern": "^\\s+BPEL Service Name : SAAComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },
+      { "desc": "BPEL ScreenComposite Service Status", "pattern": "^\\s+BPEL Service Name : ScreenComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },
+      { "desc": "BPEL STATComposite Service Status", "pattern": "^\\s+BPEL Service Name : STATComposite.*Status : (\\w+)\\s*$", "keyword": "Started" },      
+      { "desc": "GPI Web Application Status", "pattern": "^\\s+Application Name : GPI.*Status : (\\w+)\\s*$", "keyword": "ENABLED" },              
+      { "desc": "Port Status IPv4", "pattern": "^\\s+TCP\\s+0\\.0\\.0\\.0:\\d+\\s+\\S+\\s+(\\w+)\\s*$", "keyword": "LISTENING" },
+      { "desc": "Port Status IPv6", "pattern": "^\\s+TCP\\s+\\[::\\]:\\d+\\s+\\S+\\s+(\\w+)\\s*$", "keyword": "LISTENING" },            
+      { "desc": "Local Disk C", "pattern": "^\\s+Local Disk .*C.* : Total Size :.* Used Space :\\s+.*MB\\D+(\\d+)%.*\\s*$", "keyword": "dsk_pct" },
+      { "desc": "Local Disk D", "pattern": "^\\s+Local Disk .*D.* : Total Size :.* Used Space :\\s+.*MB\\D+(\\d+)%.*\\s*$", "keyword": "dsk_pct" },            
+      { "desc": "GlassFish GPI Memory", "pattern": "^\\s+Service Name : GlassFish GPI\\s+Memory :\\s+\\S+ MB\\D+(\\d+)%.*$", "keyword": "mem_pct" },
+      { "desc": "OpenESB Server Memory", "pattern": "^\\s+Service Name : OpenESB Server\\s+Memory :\\s+\\S+ MB\\D+(\\d+)%.*\\s*$", "keyword": "mem_pct" },      
+      { "desc": "Message Queue Broker Memory", "pattern": "^\\s+Service Name : Message Queue Broker\\s+Memory :\\s+\\S+ MB\\D+(\\d+)%.*\\s*$", "keyword": "mem_pct" }
+    ]
+}

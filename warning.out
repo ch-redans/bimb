@@ -1,0 +1,13 @@
+======================
+Log file name: /var/lib/awx/projects/bimb/testDir/tower.log
+Error message as follows:
+XYZ - 111
+ABC - 222
+               
+======================
+Log file name: /var/lib/awx/projects/bimb/testDir/test.log
+Error message as follows:
+XYZ - qwe
+ABC - fsf
+               
+======================

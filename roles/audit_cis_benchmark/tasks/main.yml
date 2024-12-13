@@ -1,0 +1,28 @@
+---
+
+- include_tasks: audit_cramfs.yml
+  when: inventory_hostname == ans_local
+  tags:
+    - audit_cramfs
+
+- include_tasks: insert_compliance_records_into_db.yml
+  vars:
+    xml_report: /var/lib/awx/projects/bimb/cis_report.xml
+  when: inventory_hostname == "192.168.5.12"
+  tags:
+    - insert_compliance_records_into_db
+
+- include_tasks: remediate_cramfs_1_1_1_1.yml
+  when: inventory_hostname == "192.168.5.12"
+  tags:
+    - remediate_cramfs_1_1_1_1
+
+- include_tasks: remediate_freevxfs_1_1_1_2.yml
+  when: inventory_hostname == "192.168.5.12"
+  tags:
+    - remediate_freevxfs_1_1_1_2
+
+- include_tasks: remediate_hfs_1_1_1_3.yml
+  when: inventory_hostname == "192.168.5.12"
+  tags:
+    - remediate_hfs_1_1_1_3

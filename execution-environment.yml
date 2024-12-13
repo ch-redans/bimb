@@ -1,0 +1,12 @@
+---
+version: 1
+
+build_arg_defaults:
+  EE_BASE_IMAGE: ansi.aits.my:5000/ee-demo:5
+  EE_BUILDER_IMAGE: ansi.aits.my:5000/ansible-builder:1
+  
+ansible_config: ansible.cfg
+
+dependencies:
+  galaxy: requirements.yml
+

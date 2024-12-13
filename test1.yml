@@ -1,0 +1,66 @@
+---
+- name: Convert crontab schedule to Ansible schedule
+  hosts: localhost
+  gather_facts: no
+  vars:
+    crontab_schedule: "10 5 * * 1-5"  # Replace this with your crontab schedule
+    days: "SU,MO,TU,WE,TH,FR,SA"
+    weekdays: "{{ crontab_schedule.split(' ')[4] | regex_replace('0', 'SU') |
+                  regex_replace('1', 'MO') |
+                  regex_replace('2', 'TU') |
+                  regex_replace('3', 'WE') |
+                  regex_replace('4', 'TH') |
+                  regex_replace('5', 'FR') |
+                  regex_replace('6', 'SA') }}"
+
+
+  tasks:
+    - name: Set minute section
+      set_fact:
+        mi: "{{ crontab_schedule | regex_replace('^(\\d+).*$', '\\1') | regex_replace('^(\\d)$', '0\\1') }}"
+
+    - debug:
+        var: mi
+
+    - name: Set hour section
+      set_fact:
+        hr: "{{ crontab_schedule | regex_replace('^\\d+\\s(\\d+).*$', '\\1') | regex_replace('^(\\d)$', '0\\1') }}"
+
+    - debug:
+        var: hr
+
+    - name: Convert schedule ranges to sequences
+      set_fact:
+        start_index: "{{ days.split(',').index(weekdays.split('-')[0]) | int }}"
+        end_index: "{{ days.split(',').index(weekdays.split('-')[1]) | int }}"
+
+    - debug:
+        msg: "Start Index: {{ start_index }}, End Index: {{ end_index }}"
+
+    - command: "./filter_plugins/slice_list.py {{ days }} {{ start_index }} {{ end_index }}"
+      register: sliced_list
+
+    - set_fact:
+        expanded_range: "{{ sliced_list.stdout | split(',') }}"
+
+    - debug:
+        var: expanded_range
+
+    - set_fact:
+        formatted_range: "{{ expanded_range | join(',') }}"
+
+    - debug:
+        var: formatted_range
+
+
+
+
+    - name: Display the Ansible Controller date
+      set_fact:
+        AnsContDate: "DTSTART;TZID=Asia/Singapore:20240114T{{ hr }}{{ mi }}00 RRULE:INTERVAL=1;FREQ=WEEKLY;BYDAY={{ formatted_range }}"
+        
+    - debug:
+        var: AnsContDate
+        
+    - debug:
+        msg: "DTSTART;TZID=Asia/Singapore:20240114T{{ hr }}{{ mi }}00 RRULE:INTERVAL=1;FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR"

@@ -1,0 +1,44 @@
+---
+- block:
+    - debug:
+        msg: "Remediate for hfs kernel module"
+
+    - name: Check if hfs module is available
+      shell: |
+        if lsmod | grep -q hfs; then
+          echo "available";
+        elif modinfo hfs &>/dev/null; then
+          echo "available";
+        else
+          echo "not_available";
+        fi
+      register: hfs_status
+      changed_when: false
+
+    - name: Debug hfs module availability
+      debug:
+        msg: "hfs module status: {{ hfs_status.stdout }}"
+
+    - name: Create /etc/modprobe.d/hfs.conf to disable hfs
+      ansible.builtin.copy:
+        dest: "/etc/modprobe.d/hfs.conf"
+        content: |
+          install hfs /bin/false
+          blacklist hfs
+      when: hfs_status.stdout == "available"
+
+    - name: Remove hfs from the kernel
+      shell: |
+        modprobe -r hfs 2>/dev/null || true
+        rmmod hfs 2>/dev/null || true
+      when: hfs_status.stdout == "available"
+      ignore_errors: yes
+
+    - name: Skip remediation if hfs is not available
+      debug:
+        msg: "hfs module is not available, no remediation necessary."
+      when: hfs_status.stdout == "not_available"
+
+  become: yes
+  tags: 
+    - remediate_hfs_1_1_1_3

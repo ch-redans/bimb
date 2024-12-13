@@ -1,0 +1,21 @@
+---
+ansible-navigator:
+  execution-environment:
+    container-engine: podman
+    enabled: true
+    image: localhost/ee-custom-network:latest
+    pull:
+      policy: missing
+    environment-variables:
+      set:
+        ANSIBLE_CONFIG: /var/lib/awx/projects/first_repo/ansible.cfg
+  mode: stdout
+  logging:
+    append: true
+    file: /var/lib/awx/projects/go/ansible-navigator.log
+    level: warning
+
+  playbook-artifact:
+    enable: false
+#   save-as: '{playbook_dir}/{playbook_name}-artifact-{time_stamp}.json'
+

@@ -1,0 +1,76 @@
+-----------------------------------------------------------------------------------------------------------------------
+Current Timestamp : 10-08-2023 12:30:01.250
+
+---START---
+-----------------------------------------------------------------------------------------------------------------------
+Applications Value Date : 03/09/2023
+-----------------------------------------------------------------------------------------------------------------------
+Server Name : PRDFOTTAPP01
+-----------------------------------------------------------------------------------------------------------------------
+Services Status : 
+   Service Name : Glassfish GPI                                             Status : RUNNING
+   Service Name : OpenESB Server                                            Status : RUNNING
+   Service Name : Message Queue Broker                                      Status : RUNNING
+-----------------------------------------------------------------------------------------------------------------------
+JMS Status : 
+   JMS "localhost:7676" : Current Threads :     5 Maximum Threads :  1000   Status : RUNNING
+-----------------------------------------------------------------------------------------------------------------------
+Replication Status : 
+   Database Name : GPICLIENT                                                Status : IN-PROGRESS
+   Database Name : GPICLIENT_ARCHIVE                                        Status : RUNNING
+
+Heartbeat Timestamp : 
+   Database Name : GPICLIENT                         Primary     : 2023-09-03 12:30:03
+                                                     Secondary   : 2023-09-03 12:30:00
+
+   Database Name : GPICLIENT_ARCHIVE                 Primary     : 2023-09-03 12:30:03
+                                                     Secondary   : 2023-09-03 12:29:17
+
+Sync Information : 
+   Database Name : GPICLIENT                         Primary     : 246969
+                                                     Secondary   : 246969
+
+   Database Name : GPICLIENT_ARCHIVE                 Primary     : 441383
+                                                     Secondary   : 441383
+
+Agent Job Information : 
+   Snapshot Agent : 
+      Database Name : GPICLIENT                      Status : COMPLETED, [100%] A snapshot of 208 article(s) was generated.
+      Database Name : GPICLIENT_ARCHIVE              Status : COMPLETED, [100%] A snapshot of 20 article(s) was generated.
+
+   Log Reader Agent : 
+      Database Name : GPICLIENT                      Status : IN-PROGRESS, 2 transaction(s) with 2 command(s) were delivered.
+      Database Name : GPICLIENT_ARCHIVE              Status : RUNNING, No replicated transactions are available.
+-----------------------------------------------------------------------------------------------------------------------
+BPEL Status : 
+   BPEL Service Name : AuditComposite                v 1.0.4                Status : Started
+   BPEL Service Name : BI_CaseComposite              v 1.0.0                Status : Started
+   BPEL Service Name : BI_CBSComposite               v 3.0.24               Status : Started
+   BPEL Service Name : BI_CDBComposite               v 3.0.7                Status : Started
+   BPEL Service Name : BI_OPSComposite               v 1.0.24               Status : Started
+   BPEL Service Name : BI_OtherComposite             v 1.0.11               Status : Started
+   BPEL Service Name : BI_QuantumComposite           v 1.0.7                Status : Started
+   BPEL Service Name : IFTSComposite                 v 3.0.23               Status : Started
+   BPEL Service Name : SAAComposite                  v 3.0.4                Status : Started
+   BPEL Service Name : ScreenComposite               v 3.0.4                Status : Started
+   BPEL Service Name : STATComposite                 v 3.0.3                Status : Started
+-----------------------------------------------------------------------------------------------------------------------
+Web Application Status : 
+   Application Name : GPI                            v 1.0.11085            Status : ENABLED
+-----------------------------------------------------------------------------------------------------------------------
+Port Status : 
+   Port "7676" Status : 
+      TCP    0.0.0.0:7676           0.0.0.0:0              LISTENING
+      TCP    [::]:7676              [::]:0                 LISTENING
+
+-----------------------------------------------------------------------------------------------------------------------
+Disk Space : 
+   Local Disk "C" : Total Size :     306583 MB Free Space :     262781 MB ( 86%) Used Space :      43802 MB ( 14%) 
+   Local Disk "D" : Total Size :     102381 MB Free Space :      58725 MB ( 57%) Used Space :      43656 MB ( 43%) 
+-----------------------------------------------------------------------------------------------------------------------
+Memory Status : 
+   Service Name : GlassFish GPI                                             Memory :             1,939.54 MB (  5%)
+   Service Name : OpenESB Server                                            Memory :             2,458.33 MB (  7%)
+   Service Name : Message Queue Broker                                      Memory :               200.36 MB (  0%)
+-----------------------------------------------------------------------------------------------------------------------
+

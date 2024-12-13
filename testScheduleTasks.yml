@@ -1,0 +1,42 @@
+---
+- name: Verify Scheduler Tasks
+  hosts: win
+  gather_facts: no
+
+  tasks:
+    - name: Get Scheduled Tasks
+      win_shell: |
+        Get-ScheduledTask | Select-Object -Property TaskName, State | Where-Object { $_.TaskName -eq 'Recovery-Check' } | ConvertTo-Json
+      register: scheduled_tasks_json
+ 
+    - name: Display Task Status
+      debug:
+        var: scheduled_tasks_json    
+
+    - name: Parse JSON output
+      set_fact:
+        scheduled_tasks: "{{ scheduled_tasks_json.stdout | from_json }}"
+
+    - name: Display Task List
+      debug:
+        var: scheduled_tasks
+
+    - name: Verify Task Status
+      assert:
+        that:
+          - scheduled_tasks.State == 1
+        fail_msg: "Task '{{ scheduled_tasks.TaskName }}' is not disabled. Please check!"
+        success_msg: "Task '{{ scheduled_tasks.TaskName }}' is disabled."
+
+    - name: "Append output to file"
+      lineinfile:
+        path: testSchedulerTasks.out
+        line: |
+          {% if scheduled_tasks.State == 1 %}
+            [SUCCESS] {{ scheduled_tasks.TaskName }} is disabled.
+          {% else %}
+            [FAIL] {{ scheduled_tasks.TaskName }} is not disabled!
+          {% endif %}
+        create: true
+      delegate_to: localhost
+

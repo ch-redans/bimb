@@ -1,0 +1,73 @@
+---
+- hosts: 192.168.232.12
+  gather_facts: no
+  vars:
+    xml_file_path: /var/lib/awx/projects/bimb/cis_report.xml
+    system_name: ansi.aits.my
+
+  tasks:
+    - name: Extract all Check IDs
+      community.general.xml:
+        path: "{{ xml_file_path }}"
+        xpath: "/Report/Checks/Check"  # Retrieve all 'id' attributes
+        content: attribute
+      register: check_ids
+
+    - name: Debug extracted IDs
+      debug:
+        var: check_ids.matches
+
+    - name: Extract Check IDs
+      set_fact:
+        check_ids: "{{ check_ids.matches | map(attribute='Check.id') | list }}"
+
+    - name: Display extracted IDs
+      debug:
+        msg: "{{ check_ids }}"            
+
+    - name: Parse the XML file to extract text values for each Check ID
+      community.general.xml:
+        path: "{{ xml_file_path }}"
+        xpath: "/Report/Checks/Check[@id='{{ item }}']/*"
+        content: text
+      loop: "{{ check_ids }}"
+      loop_control:
+        label: "{{ item }}"
+      register: descriptions_results
+
+    - set_fact:
+        check_id_values: "{{ descriptions_results.results | map(attribute='matches') | list }}"
+
+    - debug:
+        var: check_id_values
+
+
+    - set_fact:
+        audit_descriptions: >-
+          {{
+            audit_descriptions | default({}) | combine({
+              item: (check_id_values[item] | selectattr('Description', 'defined') | map(attribute='Description') | list).0
+            })
+          }}
+        audit_result: >-
+          {{
+            audit_result | default({}) | combine({
+              item: (check_id_values[item] | selectattr('Result', 'defined') | map(attribute='Result') | list).0
+            })
+          }}
+        audit_evidence: >-
+          {{
+            audit_evidence | default({}) | combine({
+              item: (check_id_values[item] | selectattr('Evidence', 'defined') | map(attribute='Evidence') | list).0
+            })
+          }}
+      loop: "{{ range(0, check_id_values | length) }}"
+      loop_control:
+        label: "{{ item }}"
+    
+    - debug:
+        msg: 
+          - "{{ check_ids }}"
+          - "{{ audit_descriptions }}"  
+          - "{{ audit_result }}"
+          - "{{ audit_evidence }}"

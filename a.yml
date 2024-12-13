@@ -1,0 +1,8 @@
+---
+- hosts: win
+  gather_facts: no
+
+  tasks:
+  - win_ping:
+    environment:
+      TZ: Asia/Kuala_Lumpur

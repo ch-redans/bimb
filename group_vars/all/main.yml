@@ -1,0 +1,14 @@
+---
+
+cbsServer: 192.168.5.22
+ans_local: 192.168.5.12
+
+pgDB: bimb
+DBuser: postgres
+DBpassword: postgres
+
+cis_db: grafana
+cis_user: grafana
+cis_password: grafana
+dbhost: 192.168.5.12
+

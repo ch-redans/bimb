@@ -1,0 +1,9 @@
+Health Check Results for 10/08/2023
+=======================================
+[SUCCESS] - Applications Value Date is 10/08/2023.
+[FAILED] - Glassfish RBG Service Status is , not RUNNING as expected.
+[SUCCESS] - OpenESB Server Service Status is RUNNING.
+[SUCCESS] - RBGCLIENT_ARCHIVE Heartbeat Timestamp Primary (2023-08-10) and Secondary (2023-08-10) heartbeat timestamps are current.
+[SUCCESS] - Message Queue Broker Service Status is RUNNING.
+[SUCCESS] - Memory usage for Message Queue Broker Memory is at 0 percent.
+

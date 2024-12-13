@@ -1,0 +1,37 @@
+2023-09-10 05:08:34,694 INFO     [-] daphne.cli Starting server at unix:/var/run/tower/daphne.sock
+2023-09-10 05:08:34,982 INFO     [-] daphne.server HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2023-09-10 05:08:34,983 INFO     [-] daphne.server Configuring endpoint unix:/var/run/tower/daphne.sock
+2023-09-10 05:08:37,906 INFO     [-] awx.main.wsbroadcast Active instance with hostname ansi.aits.my is registered.
+2023-09-10 05:08:37,937 WARNING  [-] awx.main.dispatch.periodic periodic beat started
+2023-09-10 05:08:37,996 INFO     [-] awx.main.dispatch Running worker dispatcher listening to queues ['tower_broadcast_all', 'ansi.aits.my']
+2023-09-10 05:13:38,504 WARNING  [ea0ac5b223c643b297b210737ff82344] awx.main.access License has expired.
+2023-09-10 05:18:38,998 WARNING  [6bb77d89a315436f955bd2f4b7ab248b] awx.main.access License has expired.
+2023-09-10 05:23:39,563 WARNING  [f4d3f102d74d48588442854313674769] awx.main.access License has expired.
+2023-09-10 05:28:39,900 WARNING  [11054dd250754c88b8a85ca29f439aeb] awx.main.access License has expired.
+2023-09-10 05:33:40,395 WARNING  [e9b0c03030274baeb4c3db41d9e72939] awx.main.access License has expired.
+2023-09-10 05:38:40,824 WARNING  [f607d42dfad34acf8f14a0537ede13ca] awx.main.access License has expired.
+2023-09-10 05:43:41,271 WARNING  [184cceb7e07647849cb6f0337772a5a4] awx.main.access License has expired.
+2023-09-10 05:48:41,712 WARNING  [a28ef45bac834918b5a293477e0c84b9] awx.main.access License has expired.
+2023-09-10 05:53:42,176 WARNING  [0e8a3a9e7bef426284e235e2fba9adc7] awx.main.access License has expired.
+2023-09-10 05:58:42,639 WARNING  [812799b0dd244d3c8a0e8710c38e11f8] awx.main.access License has expired.
+2023-09-10 06:03:43,157 WARNING  [5138060d42c14dafa8d9353d21b9f0b0] awx.main.access License has expired.
+2023-09-10 06:08:43,584 WARNING  [6bdfbf048ec6483a9c175eca68833707] awx.main.access License has expired.
+2023-09-10 06:13:43,998 WARNING  [195beec41083467a8087bc492978e5f7] awx.main.access License has expired.
+2023-09-10 06:18:44,439 WARNING  [ec5ea3951d8f41df9500ffc1fcea5b29] awx.main.access License has expired.
+2023-09-10 06:23:44,888 WARNING  [ba0e156fdd8143b79d375cd259bf1661] awx.main.access License has expired.
+2023-09-10 06:28:45,342 WARNING  [f788f230d6604855a29799d6dc710306] awx.main.access License has expired.
+2023-09-10 06:33:45,802 WARNING  [0368eaeab63b4ea4b3c5684639e30592] awx.main.access License has expired.
+2023-09-10 06:38:46,279 WARNING  [50b71f24a9104d61a24a023a3c2555da] awx.main.access License has expired.
+2023-09-10 06:43:46,744 WARNING  [522b18d85ab944258ec3200bff00ce2c] awx.main.access License has expired.
+2023-09-10 06:48:47,196 WARNING  [b51f4d3943aa4bc381b70e4ed70380f9] awx.main.access License has expired.
+2023-09-10 06:53:47,719 WARNING  [2a9c22b8e098435dabef22d8c5778d14] awx.main.access License has expired.
+2023-09-10 06:58:48,248 WARNING  [53d641bd7c72426883d5a6276a1118fa] awx.main.access License has expired.
+2023-09-10 07:03:48,760 WARNING  [c432f82a8fe747a38e9307fedd8812b0] awx.main.access License has expired.
+2023-09-10 07:06:53,217 INFO     [03ebcb874458408ba1f307f48f1a9f5d] awx.main.commands.run_callback_receiver Starting EOF event processing for Job 120
+2023-09-10 07:08:49,266 WARNING  [5b3facd6f4084791ac6cc1e3647b768e] awx.main.access License has expired.
+2023-09-10 07:13:49,722 WARNING  [ca59138bc42847c1a43ae18cce62312c] awx.main.access License has expired.
+2023-09-10 07:18:50,251 WARNING  [e8fdb071c31045e992e8eaead7754e4f] awx.main.access License has expired.
+
+XYZ - 111
+ABC - 222
+2023-09-10 07:23:50,770 WARNING  [6ebf7a296e9540628ca790f2f05690aa] awx.main.access License has expired.

@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  gather_facts: no
+  
+  tasks:
+  - name: loop to update temp table with job run status
+    include_tasks: update_temp_table.yml
+    loop: "{{ range(200) }}"

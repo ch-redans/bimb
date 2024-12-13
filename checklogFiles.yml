@@ -1,0 +1,43 @@
+---
+- name: Scan Log Files
+  hosts: ans_local
+  gather_facts: false
+  become: yes
+  
+  tasks:
+    - name: Find log files
+      find:
+        paths:
+          - /var/lib/awx/projects/bimb/testDir/
+        recurse: yes
+        patterns:
+          - '*'
+        excludes:
+          - 'setup*'
+          - '*.gz'
+        file_type: file
+      register: log_files
+
+    - name: Read and filter log files
+      ansible.builtin.shell: 'grep -E "(XYZ|ABC)" "{{ item.path }}"'
+      loop: "{{ log_files.files }}"
+      register: log_lines
+      changed_when: false
+      ignore_errors: yes
+
+    - debug: 
+        var: log_lines
+
+    - name: "Append output to file"
+      blockinfile:
+        path: /var/lib/awx/projects/bimb/warning.out
+        block: |
+          Log file name: {{ item.item.path }}
+          Error message as follows:
+          {% for line in item.stdout_lines %}
+          {{ line }}
+          {% endfor %}               
+        create: true
+        marker: "======================"
+      with_items: "{{ log_lines.results }}"
+      when: item.stdout_lines | length > 0

@@ -1,0 +1,22 @@
+- block:
+    - command: cat /etc/tower/conf.d/postgres.py | grep "'HOST'" | sed -n "s/.*'HOST': '\([^']*\)'.*/\1/p"
+      register: postgres_host
+      changed_when: false
+
+    - set_fact:
+        postgres_host_fact: "{{ postgres_host.stdout }}"
+
+    - shell: postgres --version
+      register: result
+
+    - debug:
+        var: result
+
+  tags:
+    - test
+
+- include_tasks: test.yml
+  when: inventory_hostname == postgres_host_fact
+  tags:
+    - test
+

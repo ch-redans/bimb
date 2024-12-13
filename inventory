@@ -1,0 +1,24 @@
+[ans_local]
+192.168.5.12 ansible_user=awx ansible_password=awx ansible_python_interpreter=/usr/bin/python3
+# localhost ansible_host=192.168.5.12 ansible_python_interpreter=/usr/bin/python3 ansible_user=awx ansible_password=awx
+localhost ansible_connection=local
+
+[linux]
+primary_server ansible_ssh_host=192.168.5.12 ansible_user=ansible ansible_password=ansible
+secondary_server ansible_ssh_host=192.168.5.22 ansible_user=ansible ansible_password=ansible
+192.168.5.22 ansible_user=ansible ansible_password=ansible ansible_sudo_pass=ansible
+192.168.5.23 ansible_user=ansible ansible_password=ansible ansible_sudo_pass=ansible
+
+[win]
+192.168.185.47
+prod_server ansible_host=192.168.5.206
+
+[win:vars]
+ansible_port=5986
+ansible_connection=winrm
+ansible_winrm_server_cert_validation=ignore
+ansible_user=ansible
+ansible_password=Abcd@1324
+ansible_winrm_transport=basic
+
+

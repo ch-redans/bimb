@@ -1,0 +1,165 @@
+---
+- block: 
+    - name: Extract 'System' value from xml file
+      community.general.xml:
+        path: "{{ xml_report }}"
+        xpath: "/Report/Summary/System"
+        content: text
+      register: system_value
+    
+    - name: Extract 'Date' value from xml file
+      community.general.xml:
+        path: "{{ xml_report }}"
+        xpath: "/Report/Summary/Date"
+        content: text
+      register: date_value
+
+    - name: Extract 'CompliancePercentage' value from xml file
+      community.general.xml:
+        path: "{{ xml_report }}"
+        xpath: "/Report/Summary/CompliancePercentage"
+        content: text
+      register: compliance_value
+
+    - debug:
+        msg:
+          system_name: "{{ system_value.matches[0] }}"
+          scan_date: "{{ date_value.matches[0] }}"
+          compliance_status_initial_setup: "{{ compliance_value.matches[0] }}"
+     
+    - name: Define server variables for insert or update of DB
+      set_fact:
+        system_name: "{{ system_value.matches[0].System }}"
+        compliance_status_initial_setup: "{{ compliance_value.matches[0].CompliancePercentage }}"
+        scan_date: "{{ date_value.matches[0].Date }}"
+        
+    - debug:
+        msg: "{{ system_name }} - {{ compliance_status_initial_setup }} - {{ scan_date }}"
+     
+############################################################################################ 
+# Insert server information into table system_compliance_summary
+
+    - debug:
+        msg: "create entry in table if the server has not been registered before"
+
+    - name: "Insert values into table system_compliance_summary when server not registered before"
+      community.postgresql.postgresql_query:
+        db: "{{cis_db}}"
+        query: |
+          INSERT INTO system_compliance_summary (system_name, scan_date, compliance_status_initial_setup)
+          VALUES ('{{system_name}}','{{ scan_date }}','{{compliance_status_initial_setup}}');
+        login_host: "{{dbhost}}"
+        login_user: "{{cis_user}}"
+        login_password: "{{cis_password}}"
+      register: insert_into_system_compliance_summary
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+
+    - debug:
+        var: insert_into_system_compliance_summary
+        
+############################################################################################ 
+
+    - debug:
+        msg: "Process the checks output and insert records into table"
+
+    - name: Extract all Check IDs from xml file
+      community.general.xml:
+        path: "{{ xml_report }}"
+        xpath: "/Report/Checks/Check"  # Retrieve all 'id' attributes
+        content: attribute
+      register: check_ids
+
+    - name: Debug extracted IDs
+      debug:
+        var: check_ids.matches
+
+    - name: Format Check IDs so that the values can be inserted into table
+      set_fact:
+        check_ids: "{{ check_ids.matches | map(attribute='Check.id') | list }}"
+
+    - name: Display extracted IDs
+      debug:
+        msg: "{{ check_ids }}"            
+
+    - name: Parse the XML file to extract text values for each Check ID
+      community.general.xml:
+        path: "{{ xml_report }}"
+        xpath: "/Report/Checks/Check[@id='{{ item }}']/*"
+        content: text
+      loop: "{{ check_ids }}"
+      loop_control:
+        label: "{{ item }}"
+      register: descriptions_results
+
+    - name: Pull out useful data from each check id
+      set_fact:
+        check_id_values: "{{ descriptions_results.results | map(attribute='matches') | list }}"
+
+    - debug:
+        var: check_id_values
+
+    - name: Format the aggregated data into individual data
+      set_fact:
+        audit_descriptions: >-
+          {{
+            audit_descriptions | default({}) | combine({
+              item: (check_id_values[item] | selectattr('Description', 'defined') | map(attribute='Description') | list).0
+            })
+          }}
+        audit_result: >-
+          {{
+            audit_result | default({}) | combine({
+              item: (check_id_values[item] | selectattr('Result', 'defined') | map(attribute='Result') | list).0
+            })
+          }}
+        audit_evidence: >-
+          {{
+            audit_evidence | default({}) | combine({
+              item: (check_id_values[item] | selectattr('Evidence', 'defined') | map(attribute='Evidence') | list).0
+            })
+          }}
+      loop: "{{ range(0, check_id_values | length) }}"
+      loop_control:
+        label: "{{ item }}"
+    
+    - debug:
+        msg: 
+          - "{{ check_ids }}"
+          - "{{ audit_descriptions }}"  
+          - "{{ audit_result }}"
+          - "{{ audit_evidence }}"
+
+    - name: Convert variables to the same type
+      set_fact:
+        audit_descriptions_list: "{{ audit_descriptions | dict2items | map(attribute='value') | list }}"
+        audit_result_list: "{{ audit_result | dict2items | map(attribute='value') | list }}"
+        audit_evidence_list: "{{ audit_evidence | dict2items | map(attribute='value') | list }}"
+
+    - name: Debug converted variables
+      debug:
+        msg:
+          - "Check IDs: {{ check_ids }}"
+          - "Audit Descriptions: {{ audit_descriptions_list }}"
+          - "Audit Results: {{ audit_result_list }}"
+          - "Audit Evidence: {{ audit_evidence_list }}"
+
+#########################################################################################################
+  
+    - name: "Insert values into table compliance_status_initial_setup_category"
+      community.postgresql.postgresql_query:
+        db: "{{cis_db}}"
+        query: |
+          INSERT INTO compliance_status_initial_setup_category (system_name, check_id, check_description,check_result,check_evidence)
+          VALUES ('{{system_name}}','{{ check_ids[item] }}','{{ audit_descriptions_list[item] }}','{{ audit_result_list[item] }}','{{ audit_evidence_list[item] }}');
+        login_host: "{{dbhost}}"
+        login_user: "{{cis_user}}"
+        login_password: "{{cis_password}}"
+      register: insert_into_compliance_status_initial_setup_category
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+      loop: "{{ range(0, check_id_values | length) }}"
+
+  tags: 
+    - insert_compliance_records_into_db  
+  

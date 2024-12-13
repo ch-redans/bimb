@@ -1,0 +1,347 @@
+---
+- block:
+  - block:
+    - set_fact:
+        currDate: "{{ lookup('pipe', 'date +%d%m%Y') }}"
+
+    - name: "{{ actDesc }} - Get file names and checksum on Prod {{serverType}} server"
+      ansible.builtin.find:
+        paths: "{{ dir }}"
+        recurse: yes
+        file_type: file
+        get_checksum: yes
+      register: dir_list_primary
+      become: yes
+      delegate_to: "{{delegateToProdServer}}"
+
+    - set_fact:
+        fileCountPrimary: "{{ dir_list_primary.files | length }}"
+
+    - name: "{{ actDesc }} - Delete temporary file in prior"
+      ansible.builtin.file:
+        path: "{{ csvTempfileProd }}"
+        state: absent
+      delegate_to: "{{dbhost}}"
+      ignore_errors: yes
+
+    - name: "{{ actDesc }} - Create a list of file paths and checksums in Prod {{serverType}} server"
+      set_fact:
+        file_checksum_list: "{{ dir_list_primary.files | json_query('[].{filename: path, checksum: checksum}') }}"
+
+    - name: "{{ actDesc }} - Save Prod data to a CSV file"
+      copy:
+        content: |
+          {% for item in file_checksum_list %}
+          {{ item.filename.replace(',', '_') }},{{ item.checksum }}
+          {% endfor %}
+        dest: "{{ csvTempfileProd }}"
+      become_user: postgres
+      become: yes
+      delegate_to: "{{dbhost}}"
+
+    - name: "{{ actDesc }} - Drop temp tables"
+      community.postgresql.postgresql_table:
+        name: "{{ item }}"
+        state: absent
+        db: "{{pgDB}}"
+        #port: 8003
+        login_host: "{{dbhost}}"
+        login_user: "{{DBuser}}"
+        login_password: "{{DBpassword}}"
+      with_items: "{{ Prodtbl2bCreated }}"
+      register: tblDrop
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+
+    - debug:
+        var: tblDrop
+
+    - name: "{{ actDesc }} - Create table for Prod Data"
+      community.postgresql.postgresql_table:
+        name: "{{ Prodtbl2bCreated }}"
+        columns:
+        - file_name varchar
+        - file_checksum varchar
+        owner: "{{DBuser}}"
+        db: "{{pgDB}}"
+        #port: 8003
+        login_host: "{{dbhost}}"
+        login_user: "{{DBuser}}"
+        login_password: "{{DBpassword}}"
+      register: tblCreate
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+
+    - debug:
+        var: tblCreate
+
+    - name: "{{ actDesc }} - Load prod data from file into table"
+      community.postgresql.postgresql_copy:
+        copy_from: "{{ csvTempfileProd }}"
+        dst: "{{ Prodtbl2bCreated }}"
+        options:
+          delimiter: ','
+          null: 'N'
+          format: csv
+        db: "{{pgDB}}"
+        #port: 8003
+        login_host: "{{dbhost}}"
+        login_user: "{{DBuser}}"
+        login_password: "{{DBpassword}}"
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+      register: loadStat
+
+    - debug:
+        var: loadStat
+
+############### Load DR server data ##############################
+
+    - name: "{{ actDesc }} - Get file names and checksum on DR {{serverType}} server"
+      ansible.builtin.find:
+        paths: "{{ dir }}"
+        recurse: yes
+        file_type: file
+        get_checksum: yes
+      register: dir_list_dr
+      become: yes
+      delegate_to: "{{delegateToDRServer}}"
+
+    - set_fact:
+        fileCountDR: "{{ dir_list_dr.files | length }}"
+
+    - name: "{{ actDesc }} - Delete temporary file in prior"
+      ansible.builtin.file:
+        path: "{{ csvTempfileDR }}"
+        state: absent
+      delegate_to: "{{dbhost}}"
+      ignore_errors: yes
+
+    - name: "{{ actDesc }} - Create a list of file paths and checksum in DR {{serverType}} server"
+      set_fact:
+        file_checksum_list_DR: "{{ dir_list_dr.files | json_query('[].{filename: path, checksum: checksum}') }}"
+
+    - name: "{{ actDesc }} - Save DR data to a CSV file"
+      copy:
+        content: |
+          {% for item in file_checksum_list_DR %}
+          {{ item.filename.replace(',', '_') }},{{ item.checksum }}
+          {% endfor %}
+        dest: "{{ csvTempfileDR }}"
+      become_user: postgres
+      become: yes
+      delegate_to: "{{dbhost}}"
+
+    - name: "{{ actDesc }} - Drop temp tables"
+      community.postgresql.postgresql_table:
+        name: "{{ item }}"
+        state: absent
+        db: "{{pgDB}}"
+        #port: 8003
+        login_host: "{{dbhost}}"
+        login_user: "{{DBuser}}"
+        login_password: "{{DBpassword}}"
+      with_items: "{{ DRtbl2bCreated }}"
+      register: tblDropDR
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+
+    - debug:
+        var: tblDropDR
+
+    - name: "{{ actDesc }} - Create table for DR Data"
+      community.postgresql.postgresql_table:
+        name: "{{ DRtbl2bCreated }}"
+        columns:
+        - file_name varchar
+        - file_checksum varchar
+        owner: "{{DBuser}}"
+        db: "{{pgDB}}"
+        #port: 8003
+        login_host: "{{dbhost}}"
+        login_user: "{{DBuser}}"
+        login_password: "{{DBpassword}}"
+      register: tblCreateDR
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+
+    - debug:
+        var: tblCreateDR
+
+    - name: "{{ actDesc }} - Load DR data from file into table"
+      community.postgresql.postgresql_copy:
+        copy_from: "{{ csvTempfileDR }}"
+        dst: "{{ DRtbl2bCreated }}"
+        options:
+          delimiter: ','
+          null: 'N'
+          format: csv
+        db: "{{pgDB}}"
+        #port: 8003
+        login_host: "{{dbhost}}"
+        login_user: "{{DBuser}}"
+        login_password: "{{DBpassword}}"
+      register: loadStatDR
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+
+    - debug:
+        var: loadStatDR
+
+#######################################################################################
+# Start processing the data
+
+    - name: "{{ actDesc }} - Spool out file with same name & checksum between Prod and DR {{serverType}} Servers"
+      community.postgresql.postgresql_query:
+        db: "{{pgDB}}"
+        #port: 8003
+        query: |
+          SELECT CONCAT(a.file_name, ' - ', a.file_checksum) AS "File in Prod {{serverType}} server",
+                  CONCAT(b.file_name, ' - ', b.file_checksum) AS "File in DR {{serverType}} server"
+           FROM prod_ebankerpro_template_filename a
+           JOIN dr_ebankerpro_template_filename b ON a.file_name = b.file_name
+           WHERE a.file_checksum = b.file_checksum;
+        login_host: "{{dbhost}}"
+        login_user: "{{DBuser}}"
+        login_password: "{{DBpassword}}"
+      register: query_same_name_n_checksum
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+      
+    - debug:
+        var: query_same_name_n_checksum
+
+    - name: "{{ actDesc }} - Delete reporting temp file in prior"
+      ansible.builtin.file:
+        path: "{{ reportingTempFileLocal }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: "{{ actDesc }} - Save query result to a file (file(s) with same name and same checksum)"
+      ansible.builtin.lineinfile:
+        path: "{{ reportingTempFileLocal }}"
+        create: true
+        insertafter: EOF
+        line: |
+        
+          Files in directory {{dir}} that exist in both Prod & DR {{serverType}} servers, with same checksum:
+          
+          {% for item in query_same_name_n_checksum.query_result %}
+          {{ item | to_json(indent=2) | replace('\n', '') | trim }}{% if not loop.last %},{% endif %}
+          {% endfor %}
+          
+          ########################################################################################################
+      when: query_same_name_n_checksum.query_result | length > 0
+
+    - name: "{{ actDesc }} - Save query result to a file (No file with same name and same checksum)"
+      ansible.builtin.lineinfile:
+        path: "{{ reportingTempFileLocal }}"
+        create: true        
+        insertafter: EOF
+        line: |
+        
+          Files in directory {{dir}} that exist in both Prod & DR {{serverType}} servers, with same checksum:
+          ** No file with same name and same checksum"
+          
+          ########################################################################################################
+      when: query_same_name_n_checksum.query_result | length == 0
+
+  
+
+    - name: "{{ actDesc }} - Spool out file with same name different checksum between Prod and DR {{serverType}} Servers"
+      community.postgresql.postgresql_query:
+        db: "{{pgDB}}"
+        #port: 8003
+        query: |
+          SELECT CONCAT(a.file_name, ' - ', a.file_checksum) AS "File in Prod {{serverType}} server",
+                  CONCAT(b.file_name, ' - ', b.file_checksum) AS "File in DR {{serverType}} server"
+           FROM prod_ebankerpro_template_filename a
+           JOIN dr_ebankerpro_template_filename b ON a.file_name = b.file_name
+           WHERE a.file_checksum != b.file_checksum;
+        login_host: "{{dbhost}}"
+        login_user: "{{DBuser}}"
+        login_password: "{{DBpassword}}"
+      register: query_same_name_diff_checksum
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+
+    - name: "{{ actDesc }} - Save query result to a file (file(s) with same name and different checksum)"
+      ansible.builtin.lineinfile:
+        path: "{{ reportingTempFileLocal }}"
+        create: true        
+        insertafter: EOF
+        line: |
+        
+          Files in directory {{dir}} that exist in both Prod & DR {{serverType}} servers, with different checksum:
+          
+          {% for item in query_same_name_diff_checksum.query_result %}
+          {{ item | to_json(indent=2) | replace('\n', '') | trim }}{% if not loop.last %},{% endif %}
+          {% endfor %}
+          
+          ########################################################################################################
+      when: query_same_name_diff_checksum.query_result | length > 0
+
+    - name: "{{ actDesc }} - Save query result to a file (No file with same name and different checksum)"
+      ansible.builtin.lineinfile:
+        path: "{{ reportingTempFileLocal }}"
+        create: true        
+        insertafter: EOF
+        line: |
+
+          Files in directory {{dir}} that exist in both Prod & DR {{serverType}} servers, with different checksum:
+          ** No file with same name and different checksum"
+          
+          ########################################################################################################
+      when: query_same_name_diff_checksum.query_result | length == 0
+
+    - name: "{{ actDesc }} - Spool out extra file(s) that exist(s) in DR {{serverType}} Servers"
+      community.postgresql.postgresql_query:
+        db: "{{pgDB}}"
+        #port: 8003
+        query: |
+          select file_name AS "Extra files in DR {{serverType}} Server" from {{DRtbl2bCreated}}
+          except
+          select file_name from {{Prodtbl2bCreated}};
+        login_host: "{{dbhost}}"
+        login_user: "{{DBuser}}"
+        login_password: "{{DBpassword}}"
+      register: extra_file_in_dr
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+
+    - name: "{{ actDesc }} - Spool out extra file(s) that exist(s) in Prod {{serverType}} Servers"
+      community.postgresql.postgresql_query:
+        db: "{{pgDB}}"
+        #port: 8003
+        query: |
+          select file_name AS "Extra files in Prod {{serverType}} Server" from {{Prodtbl2bCreated}}
+          except
+          select file_name from {{DRtbl2bCreated}};
+        login_host: "{{dbhost}}"
+        login_user: "{{DBuser}}"
+        login_password: "{{DBpassword}}"
+      register: extra_file_in_prod
+      become_user: postgres
+      delegate_to: "{{dbhost}}"
+
+    - name: "{{ actDesc }} - Save query result to a file (extra files in both DR and Prod {{serverType}} servers)"
+      ansible.builtin.lineinfile:
+        path: "{{ reportingTempFileLocal }}"
+        create: true        
+        insertafter: EOF
+        line: |
+          Extra file(s) in both DR and Prod {{serverType}} servers:
+          
+          {% for item in extra_file_in_dr.query_result + extra_file_in_prod.query_result %}
+          "{{ item }}"
+          {% endfor %}
+                    
+          ########################################################################################################
+      when: extra_file_in_prod.query_result | length > 0 or extra_file_in_dr.query_result | length > 0
+
+    - debug:
+        msg: "Files count in Prod: {{fileCountPrimary}} - Files count in DR: {{fileCountDR}}"
+
+  tags:
+    - compareFileNamesnChecksum_ebankerpro_app_template_files
+

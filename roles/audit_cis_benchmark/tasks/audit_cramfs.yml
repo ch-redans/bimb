@@ -1,0 +1,65 @@
+---
+- block:
+    - debug:
+        msg: "Audit cramfs kernel module availability"
+
+    - name: Check if cramfs module is loaded
+      shell: lsmod | grep -w cramfs
+      register: cramfs_loaded
+      ignore_errors: yes
+
+    - debug:
+        var: cramfs_loaded
+
+    - name: Check for deny-list entry for cramfs in /etc/modprobe.d/
+      shell: |
+        grep -E "(^|\s)cramfs(\s|$)" /etc/modprobe.d/*
+      register: cramfs_deny_list
+      failed_when: false
+
+    - debug:
+        var: cramfs_deny_list
+
+    - name: Verify if cramfs module is precompiled into the kernel
+      command: modinfo cramfs
+      register: cramfs_precompiled
+      ignore_errors: yes
+
+    - debug:
+        var: cramfs_precompiled
+
+    - name: Display results of audit
+      debug:
+        msg: |
+          Audit Results:
+          - cramfs module loaded: {{ 'Yes' if cramfs_loaded.rc == 0 else 'No' }}
+          - Deny-list entry exists: {{ 'Yes' if cramfs_deny_list.stdout.find('cramfs') != -1 else 'No' }}
+          - cramfs precompiled in kernel: {{ 'Yes' if cramfs_precompiled.rc == 0 else 'No' }}
+
+    - set_fact:
+        compliance_status: "{{ 'N' if cramfs_deny_list.stdout.find('cramfs') == -1 and cramfs_precompiled.rc == 0 else 'Y' }}"
+      when:
+        - cramfs_deny_list is defined
+        - cramfs_precompiled is defined
+
+    - debug:
+        var: compliance_status
+
+    - debug:
+        msg: "Module cramfs is not loaded in server {{ inventory_hostname }}"
+      when: cramfs_loaded.rc != 0
+
+    - name: Provide recommendation based on audit results
+      set_fact:
+        audit_recommendations:
+          Recommendations:
+          - "If the cramfs module is loaded, it should be removed."
+          - "Ensure a deny-list entry for cramfs exists in /etc/modprobe.d/."
+          - "If the module is precompiled, no additional configuration is necessary."
+
+    - debug:
+        msg: "{{ audit_recommendations }}"
+                  
+  become: yes
+  tags:
+    - audit_cramfs

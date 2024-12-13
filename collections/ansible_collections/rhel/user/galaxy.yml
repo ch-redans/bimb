@@ -1,0 +1,20 @@
+---
+version: 1.2.0
+namespace: rhel
+name: user
+readme: README.md
+authors:
+- your name <example@domain.com>
+description: your collection description
+license:
+- GPL-2.0-or-later
+license_file: ''
+tags: []
+dependencies: {}
+#  ansible.posix: '>=1.0.0'
+repository: http://example.com/repository
+documentation: http://docs.example.com
+homepage: http://example.com
+issues: http://example.com/issue/tracker
+build_ignore: []
+

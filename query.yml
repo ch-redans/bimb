@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  gather_facts: no
+  
+  tasks:
+    - community.postgresql.postgresql_query:
+        db: bimb
+        query: |
+          SELECT CONCAT(a.file_name, ' - ', a.file_size) AS "File in Prod",
+                 CONCAT(b.file_name, ' - ', b.file_size) AS "File in DR"
+          FROM bimb_compare_file_size a
+          JOIN bimb_compare_file_size_2 b ON a.file_name = b.file_name
+          WHERE a.file_size != b.file_size;
+        login_host: 192.168.5.12
+        login_user: bimb
+        login_password: bimb
+      register: query
+
+    - debug:
+        var: query.query_result
+
